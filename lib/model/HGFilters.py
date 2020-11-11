@@ -47,8 +47,8 @@ class HourGlass(nn.Module):
         # NOTE: for newer PyTorch (1.3~), it seems that training results are degraded due to implementation diff in F.grid_sample
         # if the pretrained model behaves weirdly, switch with the commented line.
         # NOTE: I also found that "bicubic" works better.
-        up2 = F.interpolate(low3, scale_factor=2, mode='bicubic', align_corners=True)
-        # up2 = F.interpolate(low3, scale_factor=2, mode='nearest)
+        # up2 = F.interpolate(low3, scale_factor=2, mode='bicubic', align_corners=True)
+        up2 = F.interpolate(low3, scale_factor=2, mode='nearest')
 
         return up1 + up2
 

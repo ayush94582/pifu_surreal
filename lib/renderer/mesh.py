@@ -259,8 +259,14 @@ def load_obj_mesh(mesh_file, with_normal=False, with_texture=False):
 
     if with_normal:
         norms = np.array(norm_data)
-        norms = normalize_v3(norms)
-        face_normals = np.array(face_norm_data) - 1
+        if norms.shape[0] == 0:
+            norms = compute_normal(vertices, faces)
+            face_normals = faces
+        else:
+            norms = normalize_v3(norms)
+            face_normals = np.array(face_norm_data) - 1
+        #norms = normalize_v3(norms)
+        #face_normals = np.array(face_norm_data) - 1
         return vertices, faces, norms, face_normals
 
     return vertices, faces
@@ -299,7 +305,7 @@ def compute_normal(vertices, faces):
     return norm
 
 # compute tangent and bitangent
-def compute_tangent(vertices, faces, normals, uvs, faceuvs):    
+def compute_tangent(vertices, faces, normals):    
     # NOTE: this could be numerically unstable around [0,0,1]
     # but other current solutions are pretty freaky somehow
     c1 = np.cross(normals, np.array([0,1,0.0]))

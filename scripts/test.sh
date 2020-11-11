@@ -19,7 +19,7 @@ VOL_RES=256
 CHECKPOINTS_NETG_PATH='./checkpoints/net_G'
 CHECKPOINTS_NETC_PATH='./checkpoints/net_C'
 
-TEST_FOLDER_PATH='./sample_images'
+TEST_FOLDER_PATH='./pifu_trial'
 
 # command
 CUDA_VISIBLE_DEVICES=${GPU_ID} python ./apps/eval.py \

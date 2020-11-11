@@ -35,7 +35,6 @@ class Evaluator:
         ])
         # set cuda
         cuda = torch.device('cuda:%d' % opt.gpu_id) if torch.cuda.is_available() else torch.device('cpu')
-
         # create net
         netG = HGPIFuNet(opt, projection_mode).to(device=cuda)
         print('Using Network: ', netG.name)
@@ -72,10 +71,12 @@ class Evaluator:
         calib = torch.Tensor(projection_matrix).float()
         # Mask
         mask = Image.open(mask_path).convert('L')
-        mask = transforms.Resize(self.load_size)(mask)
+        mask = transforms.Resize((self.load_size, self.load_size))(mask)
         mask = transforms.ToTensor()(mask).float()
+        print(mask.shape)
         # image
-        image = Image.open(image_path).convert('RGB')
+        image = Image.open(image_path).convert('RGB').resize((self.load_size, self.load_size))
+        print(image.size)
         image = self.to_tensor(image)
         image = mask.expand_as(image) * image
         return {
@@ -93,16 +94,19 @@ class Evaluator:
         :param data: a dict containing at least ['name'], ['image'], ['calib'], ['b_min'] and ['b_max'] tensors.
         :return:
         '''
+        print("In eval")
         opt = self.opt
         with torch.no_grad():
             self.netG.eval()
             if self.netC:
                 self.netC.eval()
             save_path = '%s/%s/result_%s.obj' % (opt.results_path, opt.name, data['name'])
-            if self.netC:
-                gen_mesh_color(opt, self.netG, self.netC, self.cuda, data, save_path, use_octree=use_octree)
-            else:
-                gen_mesh(opt, self.netG, self.cuda, data, save_path, use_octree=use_octree)
+            #if self.netC:
+            #    print("Calling gen mesh color")
+            #    gen_mesh_color(opt, self.netG, self.netC, self.cuda, data, save_path, use_octree=use_octree)
+            #else:
+            print("Calling gen mesh")
+            gen_mesh(opt, self.netG, self.cuda, data, save_path, use_octree=use_octree)
 
 
 if __name__ == '__main__':
@@ -115,9 +119,10 @@ if __name__ == '__main__':
     print("num; ", len(test_masks))
 
     for image_path, mask_path in tqdm.tqdm(zip(test_images, test_masks)):
-        try:
-            print(image_path, mask_path)
-            data = evaluator.load_image(image_path, mask_path)
-            evaluator.eval(data, True)
-        except Exception as e:
-           print("error:", e.args)
+        #try:
+        print(image_path, mask_path)
+        data = evaluator.load_image(image_path, mask_path)
+        evaluator.eval(data, True)
+        #except Exception as e:
+        #    print("Exception in apps.eval")
+        #    print("error:", e.args)

@@ -159,6 +159,7 @@ class EvalDataset(Dataset):
             res.update(render_data)
             return res
         except Exception as e:
+            print("Exception inside eval dataset")
             print(e)
             return self.get_item(index=random.randint(0, self.__len__() - 1))
 

@@ -9,14 +9,15 @@ class BaseOptions():
     def initialize(self, parser):
         # Datasets related
         g_data = parser.add_argument_group('Data')
-        g_data.add_argument('--dataroot', type=str, default='./data',
+        g_data.add_argument('--dataroot', type=str, default='/home/ayushagarwal/PIFu/final_pifu_train',
                             help='path to images (data folder)')
 
         g_data.add_argument('--loadSize', type=int, default=512, help='load size of input image')
+        g_data.add_argument('--temporalSize', type=int, default=1, help='neighborhood size of input image')
 
         # Experiment related
         g_exp = parser.add_argument_group('Experiment')
-        g_exp.add_argument('--name', type=str, default='example',
+        g_exp.add_argument('--name', type=str, default='trial',
                            help='name of the experiment. It decides where to store samples and models')
         g_exp.add_argument('--debug', action='store_true', help='debug mode or not')
 
@@ -55,7 +56,7 @@ class BaseOptions():
 
         # Sampling related
         g_sample = parser.add_argument_group('Sampling')
-        g_sample.add_argument('--sigma', type=float, default=5.0, help='perturbation standard deviation for positions')
+        g_sample.add_argument('--sigma', type=float, default=0.22, help='perturbation standard deviation for positions')
 
         g_sample.add_argument('--num_sample_inout', type=int, default=5000, help='# of sampling points')
         g_sample.add_argument('--num_sample_color', type=int, default=0, help='# of sampling points')

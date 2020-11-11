@@ -144,12 +144,33 @@ def rotateBand2(x, R):
 
     return dst
 
-def render_prt_ortho(mesh_file, prt, face_prt, out_path, frame_start, subject_name, video_name, shs, rndr, im_size=512, angl_step=45, n_light=1, pitch=[0]):
+def render_prt_ortho(out_path, folder_name, subject_name, shs, rndr, rndr_uv, im_size, angl_step=4, n_light=1, pitch=[0]):
     cam = Camera(width=im_size, height=im_size)
     cam.ortho_ratio = 0.4 * (512 / im_size)
     cam.near = -100
     cam.far = 100
     cam.sanity_check()
+
+    # set path for obj, prt
+    mesh_file = os.path.join(folder_name, subject_name + '_100k.obj')
+    if not os.path.exists(mesh_file):
+        print('ERROR: obj file does not exist!!', mesh_file)
+        return 
+    prt_file = os.path.join(folder_name, 'bounce', 'bounce0.txt')
+    if not os.path.exists(prt_file):
+        print('ERROR: prt file does not exist!!!', prt_file)
+        return
+    face_prt_file = os.path.join(folder_name, 'bounce', 'face.npy')
+    if not os.path.exists(face_prt_file):
+        print('ERROR: face prt file does not exist!!!', prt_file)
+        return
+    #text_file = os.path.join(folder_name, 'tex', subject_name + '_dif_2k.jpg')
+    #if not os.path.exists(text_file):
+    #    print('ERROR: dif file does not exist!!', text_file)
+    #    return             
+
+    #texture_image = cv2.imread(text_file)
+    #texture_image = cv2.cvtColor(texture_image, cv2.COLOR_BGR2RGB)
 
     vertices, faces, normals, faces_normals = load_obj_mesh(mesh_file, with_normal=True, with_texture=False)
     vmin = vertices.min(0)
@@ -161,26 +182,37 @@ def render_prt_ortho(mesh_file, prt, face_prt, out_path, frame_start, subject_na
     y_scale = 180/(vmax[up_axis] - vmin[up_axis])
 
     rndr.set_norm_mat(y_scale, vmed)
+    rndr_uv.set_norm_mat(y_scale, vmed)
 
     tan, bitan = compute_tangent(vertices, faces, normals)#, textures, face_textures)
-    #prt = np.loadtxt(prt_file)
-    #face_prt = np.load(face_prt_file)
+    prt = np.loadtxt(prt_file)
+    face_prt = np.load(face_prt_file)
     rndr.set_mesh(vertices, faces, normals, faces_normals, None, None, prt, face_prt, tan, bitan)    
+    #rndr.set_albedo(texture_image)
 
-    del vertices, faces, normals, faces_normals
+    #rndr_uv.set_mesh(vertices, faces, normals, faces_normals, textures, face_textures, prt, face_prt, tan, bitan)   
+    #rndr_uv.set_albedo(texture_image)
 
-    os.makedirs(os.path.join(out_path, 'GEO', 'OBJ', subject_name, video_name),exist_ok=True)
-    os.makedirs(os.path.join(out_path, 'PARAM', subject_name, video_name),exist_ok=True)
-    os.makedirs(os.path.join(out_path, 'RENDER', subject_name, video_name),exist_ok=True)
-    os.makedirs(os.path.join(out_path, 'MASK', subject_name, video_name),exist_ok=True)
+    os.makedirs(os.path.join(out_path, 'GEO', 'OBJ', subject_name),exist_ok=True)
+    os.makedirs(os.path.join(out_path, 'PARAM', subject_name),exist_ok=True)
+    os.makedirs(os.path.join(out_path, 'RENDER', subject_name),exist_ok=True)
+    os.makedirs(os.path.join(out_path, 'MASK', subject_name),exist_ok=True)
+    #os.makedirs(os.path.join(out_path, 'UV_RENDER', subject_name),exist_ok=True)
+    #os.makedirs(os.path.join(out_path, 'UV_MASK', subject_name),exist_ok=True)
+    #os.makedirs(os.path.join(out_path, 'UV_POS', subject_name),exist_ok=True)
+    #os.makedirs(os.path.join(out_path, 'UV_NORMAL', subject_name),exist_ok=True)
+
+    if not os.path.exists(os.path.join(out_path, 'val.txt')):
+        f = open(os.path.join(out_path, 'val.txt'), 'w')
+        f.close()
 
     # copy obj file
-    cmd = 'cp %s %s' % (mesh_file, os.path.join(out_path, 'GEO', 'OBJ', subject_name, video_name))
+    cmd = 'cp %s %s' % (mesh_file, os.path.join(out_path, 'GEO', 'OBJ', subject_name))
     print(cmd)
     os.system(cmd)
 
     for p in pitch:
-        for y in range(0, 360, angl_step):
+        for y in tqdm(range(0, 360, angl_step)):
             R = np.matmul(make_rotate(math.radians(p), 0, 0), make_rotate(0, math.radians(y), 0))
             if up_axis == 2:
                 R = np.matmul(R, make_rotate(math.radians(90),0,0))
@@ -207,8 +239,52 @@ def render_prt_ortho(mesh_file, prt, face_prt, out_path, frame_start, subject_na
                 out_mask = out_all_f[:,:,3]
                 out_all_f = cv2.cvtColor(out_all_f, cv2.COLOR_RGBA2BGR)
 
-                np.save(os.path.join(out_path, 'PARAM', subject_name, video_name, frame_start + '_%d_%d_%02d.npy'%(y,p,j)),dic)
-                cv2.imwrite(os.path.join(out_path, 'RENDER', subject_name, video_name, frame_start + '_%d_%d_%02d.jpg'%(y,p,j)),255.0*out_all_f)
-                cv2.imwrite(os.path.join(out_path, 'MASK', subject_name, video_name, frame_start + '_%d_%d_%02d.png'%(y,p,j)),255.0*out_mask)
-                del out_all_f, out_mask, dic
+                np.save(os.path.join(out_path, 'PARAM', subject_name, '%d_%d_%02d.npy'%(y,p,j)),dic)
+                cv2.imwrite(os.path.join(out_path, 'RENDER', subject_name, '%d_%d_%02d.jpg'%(y,p,j)),255.0*out_all_f)
+                cv2.imwrite(os.path.join(out_path, 'MASK', subject_name, '%d_%d_%02d.png'%(y,p,j)),255.0*out_mask)
 
+                #rndr_uv.set_sh(sh)
+                #rndr_uv.analytic = False
+                #rndr_uv.use_inverse_depth = False
+                #rndr_uv.display()
+
+                #uv_color = rndr_uv.get_color(0)
+                #uv_color = cv2.cvtColor(uv_color, cv2.COLOR_RGBA2BGR)
+                #cv2.imwrite(os.path.join(out_path, 'UV_RENDER', subject_name, '%d_%d_%02d.jpg'%(y,p,j)),255.0*uv_color)
+
+                if False:#y == 0 and j == 0 and p == pitch[0]:
+                    uv_pos = rndr_uv.get_color(1)
+                    uv_mask = uv_pos[:,:,3]
+                    cv2.imwrite(os.path.join(out_path, 'UV_MASK', subject_name, '00.png'),255.0*uv_mask)
+
+                    data = {'default': uv_pos[:,:,:3]} # default is a reserved name
+                    pyexr.write(os.path.join(out_path, 'UV_POS', subject_name, '00.exr'), data) 
+
+                    uv_nml = rndr_uv.get_color(2)
+                    uv_nml = cv2.cvtColor(uv_nml, cv2.COLOR_RGBA2BGR)
+                    cv2.imwrite(os.path.join(out_path, 'UV_NORMAL', subject_name, '00.png'),255.0*uv_nml)
+
+
+if __name__ == '__main__':
+    shs = np.load('./env_sh.npy')
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input', type=str, default='/home/shunsuke/Downloads/rp_dennis_posed_004_OBJ')
+    parser.add_argument('-o', '--out_dir', type=str, default='/home/shunsuke/Documents/hf_human')
+    parser.add_argument('-m', '--ms_rate', type=int, default=1, help='higher ms rate results in less aliased output. MESA renderer only supports ms_rate=1.')
+    parser.add_argument('-e', '--egl',  action='store_true', help='egl rendering option. use this when rendering with headless server with NVIDIA GPU')
+    parser.add_argument('-s', '--size',  type=int, default=512, help='rendering image size')
+    args = parser.parse_args()
+
+    # NOTE: GL context has to be created before any other OpenGL function loads.
+    from lib.renderer.gl.init_gl import initialize_GL_context
+    initialize_GL_context(width=args.size, height=args.size, egl=args.egl)
+
+    from lib.renderer.gl.prt_render import PRTRender
+    rndr = PRTRender(width=args.size, height=args.size, ms_rate=args.ms_rate, egl=args.egl)
+    #rndr_uv = PRTRender(width=args.size, height=args.size, uv_mode=True, egl=args.egl)
+
+    if args.input[-1] == '/':
+        args.input = args.input[:-1]
+    subject_name = args.input.split('/')[-1][:-4]
+    render_prt_ortho(args.out_dir, args.input, subject_name, shs, rndr, None, args.size, 1, 1, pitch=[0])

@@ -6,10 +6,7 @@ import math
 from scipy.special import sph_harm
 import glob
 from tqdm import tqdm
-#from multiprocessing import Pool
-from multiprocessing.dummy import Pool
-from apps.render_data import render_prt_ortho
-import random
+from multiprocessing import Pool
 
 def factratio(N, D):
     if N >= D:
@@ -127,37 +124,19 @@ def computePRT(mesh_path, n, order):
     # when loading PRT in other program, use the triangle list from trimesh.
     return PRT, mesh.faces
 
-def testPRT(obj_path, out_path='/home/ayushagarwal/PIFu/final_pifu_train'):
-    n = 40
+def testPRT(obj_path, n=40):
     dir_path = obj_path.split("frame")[0]
-    #os.makedirs(os.path.join(dir_path, 'bounce'), exist_ok=True)
+    os.makedirs(os.path.join(dir_path, 'bounce'), exist_ok=True)
     frame_name = obj_path.split("/")[-1].split(".obj")[0]
-    subject_name = obj_path.split("pifu_train/")[1].split("/")[0]
-    video_name = obj_path.split("/frame")[0].split("/")[-1]
-    if os.path.exists(os.path.join(out_path, 'GEO', 'OBJ', subject_name, video_name, frame_name + '.obj')):
-        print("Skipped ", frame_name)
-        return None
-    PRT, F = computePRT(obj_path, n, 2)
-    shs = np.load('/home/ayushagarwal/PIFu/env_sh.npy') 
 
-    from lib.renderer.gl.prt_render import PRTRender
-    rndr = PRTRender(width=512, height=512, ms_rate=1, egl=True)
-     
-    render_prt_ortho(obj_path, PRT, F, out_path, frame_name, subject_name, video_name, shs, rndr)
-    del PRT, F, shs, rndr
+    PRT, F = computePRT(obj_path, n, 2)
+    np.savetxt(os.path.join(dir_path, 'bounce', f'{frame_name}_bounce0.txt'), PRT, fmt='%.8f')
+    np.save(os.path.join(dir_path, 'bounce', f'{frame_name}_face.npy'), F)
 
 if __name__ == '__main__':
     #/vision/u/ayush/surreal/PIFu/pifu_train/136_31/136_31_c0002
     start_time = time.time()
-    dir_list = glob.glob("/home/ayushagarwal/PIFu/pifu_train/*/*/")
-    #obj_list = glob.glob("/home/ayushagarwal/PIFu/pifu_train/*/*/frame*.obj")
-    
-    from lib.renderer.gl.init_gl import initialize_GL_context
-    initialize_GL_context(width=512, height=512, egl=True)
-    
-    random.shuffle(dir_list)
-    for dir_path in dir_list:
-        obj_list = glob.glob(dir_path + "frame*.obj")
-        for obj_path in obj_list:
-            testPRT(obj_path)
+    obj_list = glob.glob("/vision/u/ayush/surreal/PIFu/pifu_train/*/*/frame*.obj")
+    with Pool(30) as p:
+        p.map(testPRT, obj_list)
     print("Finished in: ", time.time() - start_time)

@@ -1,0 +1,105 @@
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame80.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame95.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame25.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+Skipped  frame45
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame50.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame85.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame35.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame90.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+Skipped  frame15
+Skipped  frame20
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame65.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+Skipped  frame30
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame40.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame60.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame5.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame0.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame10.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame70.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame55.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_94_10/ung_94_10_c0001/frame75.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_94_10/ung_94_10_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame80.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame95.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame25.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame45.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame50.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame85.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame35.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame90.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame15.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+Skipped  frame20
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame65.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame30.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame40.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame60.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame5.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+Skipped  frame0
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame10.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame70.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame55.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_76_04/ung_76_04_c0001/frame75.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_76_04/ung_76_04_c0001
+Skipped  frame80
+Skipped  frame95
+Skipped  frame25
+Skipped  frame45
+Skipped  frame50
+Skipped  frame85
+Skipped  frame35
+Skipped  frame90
+Skipped  frame15
+Skipped  frame20
+Skipped  frame65
+Skipped  frame30
+Skipped  frame40
+Skipped  frame60
+Skipped  frame5
+Skipped  frame0
+Skipped  frame10
+Skipped  frame70
+Skipped  frame55
+Skipped  frame75
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame80.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame95.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame25.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+Skipped  frame45
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame50.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+Skipped  frame85
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame35.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame90.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame15.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame20.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame65.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame30.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame40.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame60.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame5.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame0.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame10.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame70.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame55.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+cp /home/ayushagarwal/PIFu/pifu_train/ung_77_29/ung_77_29_c0007/frame75.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_77_29/ung_77_29_c0007
+Skipped  frame25
+Skipped  frame45
+Skipped  frame50
+Skipped  frame35
+Skipped  frame15
+Skipped  frame20
+Skipped  frame30
+Skipped  frame40
+Skipped  frame5
+Skipped  frame0
+Skipped  frame10
+Skipped  frame55
+Skipped  frame80
+Skipped  frame95
+Skipped  frame25
+Skipped  frame45
+Skipped  frame50
+Skipped  frame85
+Skipped  frame35
+Skipped  frame90
+Skipped  frame15
+cp /home/ayushagarwal/PIFu/pifu_train/ung_85_07/ung_85_07_c0001/frame20.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_85_07/ung_85_07_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_85_07/ung_85_07_c0001/frame65.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_85_07/ung_85_07_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_85_07/ung_85_07_c0001/frame30.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_85_07/ung_85_07_c0001
+cp /home/ayushagarwal/PIFu/pifu_train/ung_85_07/ung_85_07_c0001/frame40.obj /home/ayushagarwal/PIFu/final_pifu_train/GEO/OBJ/ung_85_07/ung_85_07_c0001

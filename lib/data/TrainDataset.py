@@ -1,6 +1,7 @@
 from torch.utils.data import Dataset
 import numpy as np
 import os
+import glob
 import random
 import torchvision.transforms as transforms
 from PIL import Image, ImageOps
@@ -15,12 +16,22 @@ log.setLevel(40)
 
 def load_trimesh(root_dir):
     folders = os.listdir(root_dir)
+    random.shuffle(folders)
     meshs = {}
+    count_frames = 0
     for i, f in enumerate(folders):
         sub_name = f
-        meshs[sub_name] = trimesh.load(os.path.join(root_dir, f, '%s_100k.obj' % sub_name))
+        frames_list = glob.glob(os.path.join(root_dir, f) + "/*/frame*.obj")
+        meshs[sub_name] = {}
+        for frame_obj in frames_list:
+            count_frames += 1
+            frame_num = int(frame_obj.split("frame")[1].split(".obj")[0])
+            meshs[sub_name][frame_num] = trimesh.load(frame_obj)
+        if count_frames >= 50:#00:
+            return meshs, count_frames
+        #meshs[sub_name] = trimesh.load(os.path.join(root_dir, f, '%s_100k.obj' % sub_name))
 
-    return meshs
+    return meshs, count_frames
 
 def save_samples_truncted_prob(fname, points, prob):
     '''
@@ -61,26 +72,22 @@ class TrainDataset(Dataset):
         self.RENDER = os.path.join(self.root, 'RENDER')
         self.MASK = os.path.join(self.root, 'MASK')
         self.PARAM = os.path.join(self.root, 'PARAM')
-        self.UV_MASK = os.path.join(self.root, 'UV_MASK')
-        self.UV_NORMAL = os.path.join(self.root, 'UV_NORMAL')
-        self.UV_RENDER = os.path.join(self.root, 'UV_RENDER')
-        self.UV_POS = os.path.join(self.root, 'UV_POS')
         self.OBJ = os.path.join(self.root, 'GEO', 'OBJ')
 
-        self.B_MIN = np.array([-128, -28, -128])
-        self.B_MAX = np.array([128, 228, 128])
+        self.B_MIN = np.array([-1, -1, -1])#[-128, -28, -128])
+        self.B_MAX = np.array([1, 1, 1])#[128, 228, 128])
 
         self.is_train = (phase == 'train')
         self.load_size = self.opt.loadSize
+        self.temporal_length = self.opt.temporalSize
 
         self.num_views = self.opt.num_views
 
         self.num_sample_inout = self.opt.num_sample_inout
         self.num_sample_color = self.opt.num_sample_color
 
-        self.yaw_list = list(range(0,360,1))
+        self.yaw_list = list(range(0,360,45))
         self.pitch_list = [0]
-        self.subjects = self.get_subjects()
 
         # PIL to tensor
         self.to_tensor = transforms.Compose([
@@ -95,13 +102,14 @@ class TrainDataset(Dataset):
                                    hue=opt.aug_hue)
         ])
 
-        self.mesh_dic = load_trimesh(self.OBJ)
+        self.mesh_dic, self.frame_count = load_trimesh(self.OBJ)
+        self.subjects = self.get_subjects()
 
     def get_subjects(self):
-        all_subjects = os.listdir(self.RENDER)
+        all_subjects = list(self.mesh_dic.keys()) #os.listdir(self.RENDER)
         var_subjects = np.loadtxt(os.path.join(self.root, 'val.txt'), dtype=str)
         if len(var_subjects) == 0:
-            return all_subjects
+            return all_subjects[:20]
 
         if self.is_train:
             return sorted(list(set(all_subjects) - set(var_subjects)))
@@ -109,9 +117,9 @@ class TrainDataset(Dataset):
             return sorted(list(var_subjects))
 
     def __len__(self):
-        return len(self.subjects) * len(self.yaw_list) * len(self.pitch_list)
+        return len(self.subjects)
 
-    def get_render(self, subject, num_views, yid=0, pid=0, random_sample=False):
+    def get_render(self, subject, vid_name, num_views, fid, yid=0, pid=0, random_sample=False):
         '''
         Return the render data
         :param subject: subject name
@@ -137,9 +145,9 @@ class TrainDataset(Dataset):
         extrinsic_list = []
 
         for vid in view_ids:
-            param_path = os.path.join(self.PARAM, subject, '%d_%d_%02d.npy' % (vid, pitch, 0))
-            render_path = os.path.join(self.RENDER, subject, '%d_%d_%02d.jpg' % (vid, pitch, 0))
-            mask_path = os.path.join(self.MASK, subject, '%d_%d_%02d.png' % (vid, pitch, 0))
+            param_path = os.path.join(self.PARAM, subject, vid_name, 'frame%d_%d_%d_%02d.npy' % (fid, vid, pitch, 0))
+            render_path = os.path.join(self.RENDER, subject, vid_name, 'frame%d_%d_%d_%02d.jpg' % (fid, vid, pitch, 0))
+            mask_path = os.path.join(self.MASK, subject, vid_name, 'frame%d_%d_%d_%02d.png' % (fid, vid, pitch, 0))
 
             # loading calibration data
             param = np.load(param_path, allow_pickle=True)
@@ -215,7 +223,7 @@ class TrainDataset(Dataset):
                 render = render.crop((x1, y1, x1 + tw, y1 + th))
                 mask = mask.crop((x1, y1, x1 + tw, y1 + th))
 
-                render = self.aug_trans(render)
+                #render = self.aug_trans(render)
 
                 # random blur
                 if self.opt.aug_blur > 0.00001:
@@ -244,15 +252,14 @@ class TrainDataset(Dataset):
             'mask': torch.stack(mask_list, dim=0)
         }
 
-    def select_sampling_method(self, subject):
+    def select_sampling_method(self, subject, vid_name, fid):
         if not self.is_train:
             random.seed(1991)
             np.random.seed(1991)
             torch.manual_seed(1991)
-        mesh = self.mesh_dic[subject]
+        mesh = self.mesh_dic[subject][fid]
         surface_points, _ = trimesh.sample.sample_surface(mesh, 4 * self.num_sample_inout)
         sample_points = surface_points + np.random.normal(scale=self.opt.sigma, size=surface_points.shape)
-
         # add random points within image space
         length = self.B_MAX - self.B_MIN
         random_points = np.random.rand(self.num_sample_inout // 4, 3) * length + self.B_MIN
@@ -273,8 +280,9 @@ class TrainDataset(Dataset):
         samples = np.concatenate([inside_points, outside_points], 0).T
         labels = np.concatenate([np.ones((1, inside_points.shape[0])), np.zeros((1, outside_points.shape[0]))], 1)
 
-        # save_samples_truncted_prob('out.ply', samples.T, labels.T)
-        # exit()
+        print(f"Subject: {subject}, FID: {fid}")
+        save_samples_truncted_prob('out.ply', samples.T, labels.T)
+        exit()
 
         samples = torch.Tensor(samples).float()
         labels = torch.Tensor(labels).float()
@@ -287,85 +295,39 @@ class TrainDataset(Dataset):
         }
 
 
-    def get_color_sampling(self, subject, yid, pid=0):
-        yaw = self.yaw_list[yid]
-        pitch = self.pitch_list[pid]
-        uv_render_path = os.path.join(self.UV_RENDER, subject, '%d_%d_%02d.jpg' % (yaw, pitch, 0))
-        uv_mask_path = os.path.join(self.UV_MASK, subject, '%02d.png' % (0))
-        uv_pos_path = os.path.join(self.UV_POS, subject, '%02d.exr' % (0))
-        uv_normal_path = os.path.join(self.UV_NORMAL, subject, '%02d.png' % (0))
-
-        # Segmentation mask for the uv render.
-        # [H, W] bool
-        uv_mask = cv2.imread(uv_mask_path)
-        uv_mask = uv_mask[:, :, 0] != 0
-        # UV render. each pixel is the color of the point.
-        # [H, W, 3] 0 ~ 1 float
-        uv_render = cv2.imread(uv_render_path)
-        uv_render = cv2.cvtColor(uv_render, cv2.COLOR_BGR2RGB) / 255.0
-
-        # Normal render. each pixel is the surface normal of the point.
-        # [H, W, 3] -1 ~ 1 float
-        uv_normal = cv2.imread(uv_normal_path)
-        uv_normal = cv2.cvtColor(uv_normal, cv2.COLOR_BGR2RGB) / 255.0
-        uv_normal = 2.0 * uv_normal - 1.0
-        # Position render. each pixel is the xyz coordinates of the point
-        uv_pos = cv2.imread(uv_pos_path, 2 | 4)[:, :, ::-1]
-
-        ### In these few lines we flattern the masks, positions, and normals
-        uv_mask = uv_mask.reshape((-1))
-        uv_pos = uv_pos.reshape((-1, 3))
-        uv_render = uv_render.reshape((-1, 3))
-        uv_normal = uv_normal.reshape((-1, 3))
-
-        surface_points = uv_pos[uv_mask]
-        surface_colors = uv_render[uv_mask]
-        surface_normal = uv_normal[uv_mask]
-
-        if self.num_sample_color:
-            sample_list = random.sample(range(0, surface_points.shape[0] - 1), self.num_sample_color)
-            surface_points = surface_points[sample_list].T
-            surface_colors = surface_colors[sample_list].T
-            surface_normal = surface_normal[sample_list].T
-
-        # Samples are around the true surface with an offset
-        normal = torch.Tensor(surface_normal).float()
-        samples = torch.Tensor(surface_points).float() \
-                  + torch.normal(mean=torch.zeros((1, normal.size(1))), std=self.opt.sigma).expand_as(normal) * normal
-
-        # Normalized to [-1, 1]
-        rgbs_color = 2.0 * torch.Tensor(surface_colors).float() - 1.0
-
-        return {
-            'color_samples': samples,
-            'rgbs': rgbs_color
-        }
-
     def get_item(self, index):
         # In case of a missing file or IO error, switch to a random sample instead
         # try:
         sid = index % len(self.subjects)
-        tmp = index // len(self.subjects)
-        yid = tmp % len(self.yaw_list)
-        pid = tmp // len(self.yaw_list)
+        #tmp = index // len(self.subjects)
+        yid = random.choice(list(range(len(self.yaw_list)))) #tmp % len(self.yaw_list)
+        pid = 0 # tmp // len(self.pitch_list)
 
         # name of the subject 'rp_xxxx_xxx'
         subject = self.subjects[sid]
+        vid_name = os.listdir(os.path.join(self.RENDER, subject))[0]
+        frame_paths = os.listdir(os.path.join(self.RENDER, subject, vid_name))
+        frame_ids = list(set([int(frame_path.split("frame")[1].split("_")[0]) for frame_path in frame_paths]))
+
+        fid = random.choice(frame_ids) 
+
         res = {
             'name': subject,
+            'video_name': vid_name,
             'mesh_path': os.path.join(self.OBJ, subject + '.obj'),
             'sid': sid,
             'yid': yid,
             'pid': pid,
+            'fid': fid,
             'b_min': self.B_MIN,
             'b_max': self.B_MAX,
         }
-        render_data = self.get_render(subject, num_views=self.num_views, yid=yid, pid=pid,
+        render_data = self.get_render(subject, vid_name, num_views=self.num_views, yid=yid, pid=pid, fid=fid,
                                         random_sample=self.opt.random_multiview)
         res.update(render_data)
 
         if self.opt.num_sample_inout:
-            sample_data = self.select_sampling_method(subject)
+            sample_data = self.select_sampling_method(subject, vid_name, fid)
             res.update(sample_data)
         
         # img = np.uint8((np.transpose(render_data['img'][0].numpy(), (1, 2, 0)) * 0.5 + 0.5)[:, :, ::-1] * 255.0)

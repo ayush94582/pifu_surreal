@@ -44,9 +44,7 @@ def reshape_sample_tensor(sample_tensor, num_views):
 def gen_mesh(opt, net, cuda, data, save_path, use_octree=True):
     image_tensor = data['img'].to(device=cuda)
     calib_tensor = data['calib'].to(device=cuda)
-
     net.filter(image_tensor)
-
     b_min = data['b_min']
     b_max = data['b_max']
     try:
