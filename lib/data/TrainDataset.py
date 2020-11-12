@@ -14,7 +14,7 @@ import logging
 log = logging.getLogger('trimesh')
 log.setLevel(40)
 
-def load_trimesh(root_dir):
+def load_trimesh(root_dir, frame_limit):
     folders = os.listdir(root_dir)
     random.shuffle(folders)
     meshs = {}
@@ -27,9 +27,8 @@ def load_trimesh(root_dir):
             count_frames += 1
             frame_num = int(frame_obj.split("frame")[1].split(".obj")[0])
             meshs[sub_name][frame_num] = trimesh.load(frame_obj)
-        if count_frames >= 50:#00:
+        if count_frames >= frame_limit:
             return meshs, count_frames
-        #meshs[sub_name] = trimesh.load(os.path.join(root_dir, f, '%s_100k.obj' % sub_name))
 
     return meshs, count_frames
 
@@ -102,22 +101,23 @@ class TrainDataset(Dataset):
                                    hue=opt.aug_hue)
         ])
 
-        self.mesh_dic, self.frame_count = load_trimesh(self.OBJ)
+        frame_limit = 5000 if self.is_train else 400
+        self.mesh_dic, self.frame_count = load_trimesh(self.OBJ, frame_limit=frame_limit)
         self.subjects = self.get_subjects()
 
     def get_subjects(self):
         all_subjects = list(self.mesh_dic.keys()) #os.listdir(self.RENDER)
         var_subjects = np.loadtxt(os.path.join(self.root, 'val.txt'), dtype=str)
-        if len(var_subjects) == 0:
-            return all_subjects[:20]
 
         if self.is_train:
             return sorted(list(set(all_subjects) - set(var_subjects)))
         else:
+            if len(var_subjects) == 0:
+                return all_subjects[:20]
             return sorted(list(var_subjects))
 
     def __len__(self):
-        return len(self.subjects)
+        return len(self.subjects) #len(self.subjects)
 
     def get_render(self, subject, vid_name, num_views, fid, yid=0, pid=0, random_sample=False):
         '''
@@ -280,9 +280,9 @@ class TrainDataset(Dataset):
         samples = np.concatenate([inside_points, outside_points], 0).T
         labels = np.concatenate([np.ones((1, inside_points.shape[0])), np.zeros((1, outside_points.shape[0]))], 1)
 
-        print(f"Subject: {subject}, FID: {fid}")
-        save_samples_truncted_prob('out.ply', samples.T, labels.T)
-        exit()
+        #print(f"Subject: {subject}, FID: {fid}")
+        #save_samples_truncted_prob('out.ply', samples.T, labels.T)
+        #exit()
 
         samples = torch.Tensor(samples).float()
         labels = torch.Tensor(labels).float()
@@ -306,8 +306,9 @@ class TrainDataset(Dataset):
         # name of the subject 'rp_xxxx_xxx'
         subject = self.subjects[sid]
         vid_name = os.listdir(os.path.join(self.RENDER, subject))[0]
-        frame_paths = os.listdir(os.path.join(self.RENDER, subject, vid_name))
-        frame_ids = list(set([int(frame_path.split("frame")[1].split("_")[0]) for frame_path in frame_paths]))
+        #frame_paths = os.listdir(os.path.join(self.RENDER, subject, vid_name))
+        frame_ids = [int(frame_id) for frame_id in list(self.mesh_dic[subject].keys())]
+        #frame_ids = list(set([int(frame_path.split("frame")[1].split("_")[0]) for frame_path in frame_paths]))
 
         fid = random.choice(frame_ids) 
 
