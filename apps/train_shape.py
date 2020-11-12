@@ -36,14 +36,14 @@ def train(opt):
     # create data loader
     train_data_loader = DataLoader(train_dataset,
                                    batch_size=opt.batch_size, shuffle=not opt.serial_batches,
-                                   num_workers=opt.num_threads, pin_memory=opt.pin_memory)
+                                   num_workers=0, pin_memory=opt.pin_memory)
 
     print('train data size: ', len(train_data_loader))
 
     # NOTE: batch size should be 1 and use all the points for evaluation
     test_data_loader = DataLoader(test_dataset,
                                   batch_size=1, shuffle=False,
-                                  num_workers=opt.num_threads, pin_memory=opt.pin_memory)
+                                  num_workers=0, pin_memory=opt.pin_memory)
     print('test data size: ', len(test_data_loader))
 
     # create net
@@ -120,11 +120,11 @@ def train(opt):
                                                                             iter_net_time - iter_start_time, int(eta // 60),
                         int(eta - 60 * (eta // 60))))
 
-            if train_idx % opt.freq_save == 0 and train_idx != 0:
+            if epoch % opt.freq_save == 0 and epoch != 0:
                 torch.save(netG.state_dict(), '%s/%s/netG_latest' % (opt.checkpoints_path, opt.name))
                 torch.save(netG.state_dict(), '%s/%s/netG_epoch_%d' % (opt.checkpoints_path, opt.name, epoch))
 
-            if train_idx % opt.freq_save_ply == 0:
+            if epoch % opt.freq_save_ply == 0:
                 save_path = '%s/%s/pred.ply' % (opt.results_path, opt.name)
                 r = res[0].cpu()
                 points = sample_tensor[0].transpose(0, 1).cpu()
