@@ -101,7 +101,7 @@ class TrainDataset(Dataset):
                                    hue=opt.aug_hue)
         ])
 
-        frame_limit = 5000 if self.is_train else 400
+        frame_limit = 1000 if self.is_train else 400
         self.mesh_dic, self.frame_count = load_trimesh(self.OBJ, frame_limit=frame_limit)
         self.subjects = self.get_subjects()
 
@@ -298,6 +298,7 @@ class TrainDataset(Dataset):
     def get_item(self, index):
         # In case of a missing file or IO error, switch to a random sample instead
         # try:
+        random.seed()
         sid = index % len(self.subjects)
         #tmp = index // len(self.subjects)
         yid = random.choice(list(range(len(self.yaw_list)))) #tmp % len(self.yaw_list)

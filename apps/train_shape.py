@@ -89,7 +89,7 @@ def train(opt):
         iter_data_time = time.time()
         for train_idx, train_data in enumerate(train_data_loader):
             iter_start_time = time.time()
-
+            
             # retrieve the data
             image_tensor = train_data['img'].to(device=cuda)
             calib_tensor = train_data['calib'].to(device=cuda)
@@ -119,6 +119,7 @@ def train(opt):
                                                                             iter_start_time - iter_data_time,
                                                                             iter_net_time - iter_start_time, int(eta // 60),
                         int(eta - 60 * (eta // 60))))
+
 
             if epoch % opt.freq_save == 0 and epoch != 0:
                 torch.save(netG.state_dict(), '%s/%s/netG_latest' % (opt.checkpoints_path, opt.name))
