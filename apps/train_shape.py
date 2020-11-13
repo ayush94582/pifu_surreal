@@ -95,7 +95,7 @@ def train(opt):
             calib_tensor = train_data['calib'].to(device=cuda)
             sample_tensor = train_data['samples'].to(device=cuda)
 
-            #image_tensor, calib_tensor = reshape_multiview_tensors(image_tensor, calib_tensor)
+            image_tensor, calib_tensor = reshape_multiview_tensors(image_tensor, calib_tensor)
 
             label_tensor = train_data['labels'].to(device=cuda)
 
