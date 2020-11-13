@@ -14,7 +14,7 @@ import logging
 log = logging.getLogger('trimesh')
 log.setLevel(40)
 
-def load_trimesh(root_dir, frame_limit):
+def load_trimesh(root_dir):
     folders = os.listdir(root_dir)
     random.shuffle(folders)
     meshs = {}
@@ -27,13 +27,10 @@ def load_trimesh(root_dir, frame_limit):
             count_frames += 1
             frame_num = int(frame_obj.split("frame")[1].split(".obj")[0])
             meshs[sub_name][frame_num] = frame_obj
-        if count_frames >= frame_limit:
-            print("TOTAL MESHES")
-            print(len(meshs))
-            print("COUNT FRAMES")
-            print(count_frames)
-            return meshs, count_frames
-    
+    print("TOTAL MESHES")
+    print(len(meshs))
+    print("COUNT FRAMES")
+    print(count_frames)
     return meshs, count_frames
 
 def save_samples_truncted_prob(fname, points, prob):
@@ -86,7 +83,8 @@ class TrainDataset(Dataset):
 
         self.num_views = self.opt.num_views
 
-        self.num_sample_inout = self.opt.num_sample_inout
+        self.num_sample_inout =  500
+        print(f"NUM SAMPLE IN OUT: {self.num_sample_inout}")
         self.num_sample_color = self.opt.num_sample_color
 
         self.yaw_list = list(range(0,360,45))
@@ -105,20 +103,17 @@ class TrainDataset(Dataset):
                                    hue=opt.aug_hue)
         ])
 
-        frame_limit = 1000 if self.is_train else 400
-        self.mesh_dic, self.frame_count = load_trimesh(self.OBJ, frame_limit=frame_limit)
+        #frame_limit = 1000 if self.is_train else 400
+        self.mesh_dic, self.frame_count = load_trimesh(self.OBJ)
         self.subjects = self.get_subjects()
 
     def get_subjects(self):
-        all_subjects = list(self.mesh_dic.keys()) #os.listdir(self.RENDER)
-        var_subjects = np.loadtxt(os.path.join(self.root, 'val.txt'), dtype=str)
+        all_subjects = sorted(list(self.mesh_dic.keys())) #os.listdir(self.RENDER)
 
         if self.is_train:
-            return sorted(list(set(all_subjects) - set(var_subjects)))
+            return all_subjects[:-20]
         else:
-            if len(var_subjects) == 0:
-                return all_subjects[:20]
-            return sorted(list(var_subjects))
+            return all_subjects[-20:]
 
     def __len__(self):
         return len(self.subjects) #len(self.subjects)

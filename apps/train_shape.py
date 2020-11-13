@@ -35,7 +35,7 @@ def train(opt):
 
     # create data loader
     train_data_loader = DataLoader(train_dataset,
-                                   batch_size=1, shuffle=True,
+                                   batch_size=2, shuffle=True,
                                    num_workers=1)
 
     print('train data size: ', len(train_data_loader))
@@ -59,17 +59,17 @@ def train(opt):
         netG.eval()
 
     # load checkpoints
-    #if opt.load_netG_checkpoint_path is not None:
-    ##    print('loading for net G ...', opt.load_netG_checkpoint_path)
-     #   netG.load_state_dict(torch.load(opt.load_netG_checkpoint_path, map_location=cuda))
-#
- #   if opt.continue_train:
- #       if opt.resume_epoch < 0:
- #          model_path = '%s/%s/netG_latest' % (opt.checkpoints_path, opt.name)
- #       else:
- ####           model_path = '%s/%s/netG_epoch_%d' % (opt.checkpoints_path, opt.name, opt.resume_epoch)
-    #    print('Resuming from ', model_path)
-    #    netG.load_state_dict(torch.load(model_path, map_location=cuda))
+    if opt.load_netG_checkpoint_path is not None:
+        print('loading for net G ...', opt.load_netG_checkpoint_path)
+        netG.load_state_dict(torch.load(opt.load_netG_checkpoint_path, map_location=cuda))
+
+    if opt.continue_train:
+        if opt.resume_epoch < 0:
+            model_path = '%s/%s/netG_latest' % (opt.checkpoints_path, opt.name)
+        else:
+            model_path = '%s/%s/netG_epoch_%d' % (opt.checkpoints_path, opt.name, opt.resume_epoch)
+        print('Resuming from ', model_path)
+        netG.load_state_dict(torch.load(model_path, map_location=cuda))
 
     os.makedirs(opt.checkpoints_path, exist_ok=True)
     os.makedirs(opt.results_path, exist_ok=True)
@@ -88,6 +88,7 @@ def train(opt):
         set_train()
         iter_data_time = time.time()
         for train_idx, train_data in enumerate(train_data_loader):
+
             iter_start_time = time.time()
             
             # retrieve the data
@@ -118,15 +119,15 @@ def train(opt):
                         int(eta - 60 * (eta // 60))))
 
 
-            if epoch % opt.freq_save == 0 and epoch != 0:
-                torch.save(netG.state_dict(), '%s/%s/netG_latest' % (opt.checkpoints_path, opt.name))
-                torch.save(netG.state_dict(), '%s/%s/netG_epoch_%d' % (opt.checkpoints_path, opt.name, epoch))
+            #if epoch % opt.freq_save == 0 and epoch != 0:
+            torch.save(netG.state_dict(), '%s/%s/netG_latest' % (opt.checkpoints_path, opt.name))
+            torch.save(netG.state_dict(), '%s/%s/netG_epoch_%d' % (opt.checkpoints_path, opt.name, epoch))
 
-            if epoch % opt.freq_save_ply == 0:
-                save_path = '%s/%s/pred.ply' % (opt.results_path, opt.name)
-                r = res[0].cpu()
-                points = sample_tensor[0].transpose(0, 1).cpu()
-                save_samples_truncted_prob(save_path, points.detach().numpy(), r.detach().numpy())
+            #if epoch % opt.freq_save_ply == 0:
+            save_path = '%s/%s/pred.ply' % (opt.results_path, opt.name)
+            r = res[0].cpu()
+            points = sample_tensor[0].transpose(0, 1).cpu()
+            save_samples_truncted_prob(save_path, points.detach().numpy(), r.detach().numpy())
 
             iter_data_time = time.time()
 

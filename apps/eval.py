@@ -101,28 +101,19 @@ class Evaluator:
             if self.netC:
                 self.netC.eval()
             save_path = '%s/%s/result_%s.obj' % (opt.results_path, opt.name, data['name'])
-            #if self.netC:
-            #    print("Calling gen mesh color")
-            #    gen_mesh_color(opt, self.netG, self.netC, self.cuda, data, save_path, use_octree=use_octree)
-            #else:
+
             print("Calling gen mesh")
             gen_mesh(opt, self.netG, self.cuda, data, save_path, use_octree=use_octree)
+
 
 
 if __name__ == '__main__':
     evaluator = Evaluator(opt)
 
-    test_images = glob.glob(os.path.join(opt.test_folder_path, '*'))
-    test_images = [f for f in test_images if ('png' in f or 'jpg' in f) and (not 'mask' in f)]
-    test_masks = [f[:-4]+'_mask.png' for f in test_images]
+    test_dataset = TrainDataset(opt, phase='test')
 
-    print("num; ", len(test_masks))
-
-    for image_path, mask_path in tqdm.tqdm(zip(test_images, test_masks)):
-        #try:
-        print(image_path, mask_path)
-        data = evaluator.load_image(image_path, mask_path)
-        evaluator.eval(data, True)
-        #except Exception as e:
-        #    print("Exception in apps.eval")
-        #    print("error:", e.args)
+    test_data_loader = DataLoader(test_dataset,
+                                  batch_size=1, shuffle=False,
+                                  num_workers=1)
+    for idx, test_data in enumerate(test_data_loader):
+        evaluator.eval(test_data,True)
