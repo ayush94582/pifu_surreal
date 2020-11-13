@@ -26,10 +26,14 @@ def load_trimesh(root_dir, frame_limit):
         for frame_obj in frames_list:
             count_frames += 1
             frame_num = int(frame_obj.split("frame")[1].split(".obj")[0])
-            meshs[sub_name][frame_num] = trimesh.load(frame_obj)
+            meshs[sub_name][frame_num] = frame_obj
         if count_frames >= frame_limit:
+            print("TOTAL MESHES")
+            print(len(meshs))
+            print("COUNT FRAMES")
+            print(count_frames)
             return meshs, count_frames
-
+    
     return meshs, count_frames
 
 def save_samples_truncted_prob(fname, points, prob):
@@ -253,11 +257,7 @@ class TrainDataset(Dataset):
         }
 
     def select_sampling_method(self, subject, vid_name, fid):
-        if not self.is_train:
-            random.seed(1991)
-            np.random.seed(1991)
-            torch.manual_seed(1991)
-        mesh = self.mesh_dic[subject][fid]
+        mesh = trimesh.load(self.mesh_dic[subject][fid])
         surface_points, _ = trimesh.sample.sample_surface(mesh, 4 * self.num_sample_inout)
         sample_points = surface_points + np.random.normal(scale=self.opt.sigma, size=surface_points.shape)
         # add random points within image space
@@ -297,10 +297,7 @@ class TrainDataset(Dataset):
 
     def get_item(self, index):
         # In case of a missing file or IO error, switch to a random sample instead
-        # try:
-        random.seed()
         sid = index % len(self.subjects)
-        #tmp = index // len(self.subjects)
         yid = random.choice(list(range(len(self.yaw_list)))) #tmp % len(self.yaw_list)
         pid = 0 # tmp // len(self.pitch_list)
 
@@ -312,6 +309,7 @@ class TrainDataset(Dataset):
         #frame_ids = list(set([int(frame_path.split("frame")[1].split("_")[0]) for frame_path in frame_paths]))
 
         fid = random.choice(frame_ids) 
+
 
         res = {
             'name': subject,
@@ -326,29 +324,14 @@ class TrainDataset(Dataset):
         }
         render_data = self.get_render(subject, vid_name, num_views=self.num_views, yid=yid, pid=pid, fid=fid,
                                         random_sample=self.opt.random_multiview)
+                             
         res.update(render_data)
 
-        if self.opt.num_sample_inout:
-            sample_data = self.select_sampling_method(subject, vid_name, fid)
-            res.update(sample_data)
-        
-        # img = np.uint8((np.transpose(render_data['img'][0].numpy(), (1, 2, 0)) * 0.5 + 0.5)[:, :, ::-1] * 255.0)
-        # rot = render_data['calib'][0,:3, :3]
-        # trans = render_data['calib'][0,:3, 3:4]
-        # pts = torch.addmm(trans, rot, sample_data['samples'][:, sample_data['labels'][0] > 0.5])  # [3, N]
-        # pts = 0.5 * (pts.numpy().T + 1.0) * render_data['img'].size(2)
-        # for p in pts:
-        #     img = cv2.circle(img, (p[0], p[1]), 2, (0,255,0), -1)
-        # cv2.imshow('test', img)
-        # cv2.waitKey(1)
+        sample_data = self.select_sampling_method(subject,vid_name,fid)
+        res.update(sample_data)
 
-        if self.num_sample_color:
-            color_data = self.get_color_sampling(subject, yid=yid, pid=pid)
-            res.update(color_data)
         return res
-        # except Exception as e:
-        #     print(e)
-        #     return self.get_item(index=random.randint(0, self.__len__() - 1))
+
 
     def __getitem__(self, index):
         return self.get_item(index)

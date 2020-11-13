@@ -35,22 +35,22 @@ def train(opt):
 
     # create data loader
     train_data_loader = DataLoader(train_dataset,
-                                   batch_size=opt.batch_size, shuffle=not opt.serial_batches,
-                                   num_workers=0, pin_memory=opt.pin_memory)
+                                   batch_size=1, shuffle=True,
+                                   num_workers=1)
 
     print('train data size: ', len(train_data_loader))
 
     # NOTE: batch size should be 1 and use all the points for evaluation
     test_data_loader = DataLoader(test_dataset,
                                   batch_size=1, shuffle=False,
-                                  num_workers=0, pin_memory=opt.pin_memory)
+                                  num_workers=1)
     print('test data size: ', len(test_data_loader))
 
     # create net
     netG = HGPIFuNet(opt, projection_mode).to(device=cuda)
-    optimizerG = torch.optim.RMSprop(netG.parameters(), lr=opt.learning_rate, momentum=0, weight_decay=0)
+    optimizerG = torch.optim.Adam(netG.parameters(), lr=opt.learning_rate)
     lr = opt.learning_rate
-    print('Using Network: ', netG.name)
+    print('Using lr: ',lr)
     
     def set_train():
         netG.train()
@@ -59,17 +59,17 @@ def train(opt):
         netG.eval()
 
     # load checkpoints
-    if opt.load_netG_checkpoint_path is not None:
-        print('loading for net G ...', opt.load_netG_checkpoint_path)
-        netG.load_state_dict(torch.load(opt.load_netG_checkpoint_path, map_location=cuda))
-
-    if opt.continue_train:
-        if opt.resume_epoch < 0:
-            model_path = '%s/%s/netG_latest' % (opt.checkpoints_path, opt.name)
-        else:
-            model_path = '%s/%s/netG_epoch_%d' % (opt.checkpoints_path, opt.name, opt.resume_epoch)
-        print('Resuming from ', model_path)
-        netG.load_state_dict(torch.load(model_path, map_location=cuda))
+    #if opt.load_netG_checkpoint_path is not None:
+    ##    print('loading for net G ...', opt.load_netG_checkpoint_path)
+     #   netG.load_state_dict(torch.load(opt.load_netG_checkpoint_path, map_location=cuda))
+#
+ #   if opt.continue_train:
+ #       if opt.resume_epoch < 0:
+ #          model_path = '%s/%s/netG_latest' % (opt.checkpoints_path, opt.name)
+ #       else:
+ ####           model_path = '%s/%s/netG_epoch_%d' % (opt.checkpoints_path, opt.name, opt.resume_epoch)
+    #    print('Resuming from ', model_path)
+    #    netG.load_state_dict(torch.load(model_path, map_location=cuda))
 
     os.makedirs(opt.checkpoints_path, exist_ok=True)
     os.makedirs(opt.results_path, exist_ok=True)
@@ -95,10 +95,7 @@ def train(opt):
             calib_tensor = train_data['calib'].to(device=cuda)
             sample_tensor = train_data['samples'].to(device=cuda)
 
-            image_tensor, calib_tensor = reshape_multiview_tensors(image_tensor, calib_tensor)
-
-            if opt.num_views > 1:
-                sample_tensor = reshape_sample_tensor(sample_tensor, opt.num_views)
+            #image_tensor, calib_tensor = reshape_multiview_tensors(image_tensor, calib_tensor)
 
             label_tensor = train_data['labels'].to(device=cuda)
 
@@ -112,8 +109,8 @@ def train(opt):
             eta = ((iter_net_time - epoch_start_time) / (train_idx + 1)) * len(train_data_loader) - (
                     iter_net_time - epoch_start_time)
 
-            if train_idx % opt.freq_plot == 0:
-                print(
+            #if train_idx % opt.freq_plot == 0:
+            print(
                     'Name: {0} | Epoch: {1} | {2}/{3} | Err: {4:.06f} | LR: {5:.06f} | Sigma: {6:.02f} | dataT: {7:.05f} | netT: {8:.05f} | ETA: {9:02d}:{10:02d}'.format(
                         opt.name, epoch, train_idx, len(train_data_loader), error.item(), lr, opt.sigma,
                                                                             iter_start_time - iter_data_time,
