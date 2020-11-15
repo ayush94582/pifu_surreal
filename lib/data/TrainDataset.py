@@ -74,20 +74,22 @@ class TrainDataset(Dataset):
         self.PARAM = os.path.join(self.root, 'PARAM')
         self.OBJ = os.path.join(self.root, 'GEO', 'OBJ')
 
-        self.B_MIN = np.array([-1, -1, -1])#[-128, -28, -128])
-        self.B_MAX = np.array([1, 1, 1])#[128, 228, 128])
-
+        self.B_MIN = np.array([-5, -5, -5])#[-128, -28, -128])
+        self.B_MAX = np.array([5, 5, 5])#[128, 228, 128])
+        #self.B_MIN = np.array([-128, -28, -128])
+        #self.B_MAX = np.array([128, 228, 128])
         self.is_train = (phase == 'train')
         self.load_size = self.opt.loadSize
         self.temporal_length = self.opt.temporalSize
 
         self.num_views = self.opt.num_views
 
-        self.num_sample_inout =  500
+        self.num_sample_inout =  1000
         print(f"NUM SAMPLE IN OUT: {self.num_sample_inout}")
         self.num_sample_color = self.opt.num_sample_color
 
         self.yaw_list = list(range(0,360,45))
+        #self.yaw_list = [0]
         self.pitch_list = [0]
 
         # PIL to tensor
@@ -111,9 +113,9 @@ class TrainDataset(Dataset):
         all_subjects = sorted(list(self.mesh_dic.keys())) #os.listdir(self.RENDER)
 
         if self.is_train:
-            return all_subjects[:-20]
+            return all_subjects[:-100]
         else:
-            return all_subjects[-20:]
+            return all_subjects[-100:]
 
     def __len__(self):
         return len(self.subjects) #len(self.subjects)
@@ -253,6 +255,13 @@ class TrainDataset(Dataset):
 
     def select_sampling_method(self, subject, vid_name, fid):
         mesh = trimesh.load(self.mesh_dic[subject][fid])
+        #mesh.vertices -= mesh.center_mass
+        #mesh = mesh.apply_scale(30.0)
+        #mesh = mesh.apply_translation((0,100,0))
+        #mesh = mesh.apply_transform(trimesh.transformations.rotation_matrix(90, (0,-1,0), point=None))
+        #bb = trimesh.bounds.corners(mesh.bounding_box_oriented.bounds)
+        #print(bb)
+
         surface_points, _ = trimesh.sample.sample_surface(mesh, 4 * self.num_sample_inout)
         sample_points = surface_points + np.random.normal(scale=self.opt.sigma, size=surface_points.shape)
         # add random points within image space
@@ -301,6 +310,7 @@ class TrainDataset(Dataset):
         vid_name = os.listdir(os.path.join(self.RENDER, subject))[0]
         #frame_paths = os.listdir(os.path.join(self.RENDER, subject, vid_name))
         frame_ids = [int(frame_id) for frame_id in list(self.mesh_dic[subject].keys())]
+
         #frame_ids = list(set([int(frame_path.split("frame")[1].split("_")[0]) for frame_path in frame_paths]))
 
         fid = random.choice(frame_ids) 
@@ -329,4 +339,7 @@ class TrainDataset(Dataset):
 
 
     def __getitem__(self, index):
-        return self.get_item(index)
+        try:
+            return self.get_item(index)
+        except Exception as e:
+            return None

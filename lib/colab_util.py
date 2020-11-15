@@ -6,13 +6,14 @@ import numpy as np
 import cv2
 from tqdm import tqdm_notebook as tqdm
 import base64
-from IPython.display import HTML
+#from IPython.display import HTML
 
 # Util function for loading meshes
 from pytorch3d.io import load_objs_as_meshes
 
-from IPython.display import HTML
+#from IPython.display import HTML
 from base64 import b64encode
+import trimesh
 
 # Data structures and functions for rendering
 from pytorch3d.structures import Meshes
@@ -86,25 +87,23 @@ def generate_video_from_obj(obj_path, video_path, renderer):
     wo_textures = TexturesVertex(verts_features=torch.ones_like(verts_rgb_colors)*0.75)
 
     # Load obj
-    mesh = load_objs_as_meshes([obj_path], device=device)
+    #mesh = load_objs_as_meshes([obj_path], device=device)
+    mesh = trimesh.load(obj_path)
+    mesh.vertices -= mesh.center_mass
 
     # Set mesh
-    vers = mesh._verts_list
-    faces = mesh._faces_list
-    mesh_w_tex = Meshes(vers, faces, textures)
-    mesh_wo_tex = Meshes(vers, faces, wo_textures)
+    mesh_wo_tex = Meshes(torch.FloatTensor(mesh.vertices), torch.FloatTensor(mesh.faces), wo_textures)
 
     # create VideoWriter
     fourcc = cv2. VideoWriter_fourcc(*'MP4V')
-    out = cv2.VideoWriter(video_path, fourcc, 20.0, (1024,512))
+    out = cv2.VideoWriter(video_path, fourcc, 20.0, (512,512))
 
     for i in tqdm(range(90)):
-        R, T = look_at_view_transform(1.8, 0, i*4, device=device)
-        images_w_tex = renderer(mesh_w_tex, R=R, T=T)
-        images_w_tex = np.clip(images_w_tex[0, ..., :3].cpu().numpy(), 0.0, 1.0)[:, :, ::-1] * 255
+        R, T = look_at_view_transform(vers[0][1].mean(), 0, i*4, device=device)
         images_wo_tex = renderer(mesh_wo_tex, R=R, T=T)
         images_wo_tex = np.clip(images_wo_tex[0, ..., :3].cpu().numpy(), 0.0, 1.0)[:, :, ::-1] * 255
-        image = np.concatenate([images_w_tex, images_wo_tex], axis=1)
+        #image = np.concatenate([images_w_tex, images_wo_tex], axis=1)
+        image = images_wo_tex
         out.write(image.astype('uint8'))
     out.release()
 

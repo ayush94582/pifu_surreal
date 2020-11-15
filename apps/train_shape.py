@@ -11,6 +11,7 @@ import cv2
 import random
 import torch
 from torch.utils.data import DataLoader
+from torch.utils.data.dataloader import default_collate
 from tqdm import tqdm
 
 from lib.options import BaseOptions
@@ -35,14 +36,16 @@ def train(opt):
 
     # create data loader
     train_data_loader = DataLoader(train_dataset,
-                                   batch_size=2, shuffle=True,
-                                   num_workers=1)
+                                   batch_size=4, shuffle=True,
+                                   collate_fn=ignore_exceptions_collate,
+                                   num_workers=4)
 
     print('train data size: ', len(train_data_loader))
 
     # NOTE: batch size should be 1 and use all the points for evaluation
     test_data_loader = DataLoader(test_dataset,
                                   batch_size=1, shuffle=False,
+                                  collate_fn=ignore_exceptions_collate,
                                   num_workers=1)
     print('test data size: ', len(test_data_loader))
 
@@ -177,6 +180,10 @@ def train(opt):
                     gen_mesh(opt, netG, cuda, train_data, save_path)
                 train_dataset.is_train = True
 
+
+def ignore_exceptions_collate(batch):
+    batch = list(filter(lambda x: x is not None and type(x) is not torch.double, batch))
+    return default_collate(batch)
 
 if __name__ == '__main__':
     train(opt)

@@ -41,7 +41,7 @@ def reshape_sample_tensor(sample_tensor, num_views):
     return sample_tensor
 
 
-def gen_mesh(opt, net, cuda, data, save_path, use_octree=True):
+def gen_mesh(opt, net, cuda, data, save_path, use_octree=False):
     image_tensor = data['img'].to(device=cuda)
     calib_tensor = data['calib'].to(device=cuda)
     net.filter(image_tensor)
@@ -58,11 +58,13 @@ def gen_mesh(opt, net, cuda, data, save_path, use_octree=True):
 
         verts, faces, _, _ = reconstruction(
             net, cuda, calib_tensor, opt.resolution, b_min, b_max, use_octree=use_octree)
+        print("Did reconstruction!")
         verts_tensor = torch.from_numpy(verts.T).unsqueeze(0).to(device=cuda).float()
         xyz_tensor = net.projection(verts_tensor, calib_tensor[:1])
         uv = xyz_tensor[:, :2, :]
         color = index(image_tensor[:1], uv).detach().cpu().numpy()[0].T
         color = color * 0.5 + 0.5
+        print("Saving mesh!")
         save_obj_mesh_with_color(save_path, verts, faces, color)
     except Exception as e:
         print(e)

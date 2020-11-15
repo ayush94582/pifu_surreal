@@ -35,7 +35,7 @@ class BaseOptions():
         g_train.add_argument('--pin_memory', action='store_true', help='pin_memory')
         
         g_train.add_argument('--batch_size', type=int, default=2, help='input batch size')
-        g_train.add_argument('--learning_rate', type=float, default=1e-3, help='adam learning rate')
+        g_train.add_argument('--learning_rate', type=float, default=1e-4, help='adam learning rate')
         g_train.add_argument('--learning_rateC', type=float, default=1e-3, help='adam learning rate')
         g_train.add_argument('--num_epoch', type=int, default=100, help='num epoch to train')
 
@@ -61,7 +61,7 @@ class BaseOptions():
         g_sample.add_argument('--num_sample_inout', type=int, default=5000, help='# of sampling points')
         g_sample.add_argument('--num_sample_color', type=int, default=0, help='# of sampling points')
 
-        g_sample.add_argument('--z_size', type=float, default=200.0, help='z normalization factor')
+        g_sample.add_argument('--z_size', type=float, default=2.0, help='z normalization factor')
 
         # Model related
         g_model = parser.add_argument_group('Model')

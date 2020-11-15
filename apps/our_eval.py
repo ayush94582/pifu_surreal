@@ -1,6 +1,6 @@
-
 import sys
 import os
+import random
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 ROOT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -15,8 +15,9 @@ from lib.options import BaseOptions
 from lib.mesh_util import *
 from lib.sample_util import *
 from lib.train_util import *
-from lib.model import *
 from lib.colab_util import *
+from lib.data import *
+from lib.model import *
 
 from PIL import Image
 import torchvision.transforms as transforms
@@ -37,12 +38,12 @@ class Evaluator:
         ])
         # set cuda
         cuda = torch.device('cuda:%d' % opt.gpu_id) if torch.cuda.is_available() else torch.device('cpu')
-
         # create net
         netG = HGPIFuNet(opt, projection_mode).to(device=cuda)
         print('Using Network: ', netG.name)
 
         if opt.load_netG_checkpoint_path:
+            print('loading for net G ...', opt.load_netG_checkpoint_path)
             netG.load_state_dict(torch.load(opt.load_netG_checkpoint_path, map_location=cuda))
 
         if opt.load_netC_checkpoint_path is not None:
@@ -74,10 +75,12 @@ class Evaluator:
         calib = torch.Tensor(projection_matrix).float()
         # Mask
         mask = Image.open(mask_path).convert('L')
-        mask = transforms.Resize(self.load_size)(mask)
+        mask = transforms.Resize((self.load_size, self.load_size))(mask)
         mask = transforms.ToTensor()(mask).float()
+        print(mask.shape)
         # image
-        image = Image.open(image_path).convert('RGB')
+        image = Image.open(image_path).convert('RGB').resize((self.load_size, self.load_size))
+        print(image.size)
         image = self.to_tensor(image)
         image = mask.expand_as(image) * image
         return {
@@ -95,6 +98,8 @@ class Evaluator:
         :param data: a dict containing at least ['name'], ['image'], ['calib'], ['b_min'] and ['b_max'] tensors.
         :return:
         '''
+        print("In eval")
+  
         opt = self.opt
         with torch.no_grad():
             self.netG.eval()
@@ -108,19 +113,11 @@ class Evaluator:
             generate_video_from_obj(save_path, video_path, renderer)
 
 
+
 if __name__ == '__main__':
     evaluator = Evaluator(opt)
 
-    test_images = glob.glob(os.path.join(opt.test_folder_path, '*'))
-    test_images = [f for f in test_images if ('png' in f or 'jpg' in f) and (not 'mask' in f)]
-    test_masks = [f[:-4]+'_mask.png' for f in test_images]
+    test_dataset = TrainDataset(opt, phase='test')
 
-    print("num; ", len(test_masks))
-
-    for image_path, mask_path in tqdm.tqdm(zip(test_images, test_masks)):
-        try:
-            print(image_path, mask_path)
-            data = evaluator.load_image(image_path, mask_path)
-            evaluator.eval(data, True)
-        except Exception as e:
-           print("error:", e.args)
+    test_data = random.choice(test_dataset)
+    evaluator.eval(test_data,True)

@@ -69,7 +69,7 @@
   "all_mesh": false,
   "num_gen_mesh_test": 1,
   "checkpoints_path": "./checkpoints",
-  "load_netG_checkpoint_path": null,
+  "load_netG_checkpoint_path": "checkpoints/run_3/netG_latest",
   "load_netC_checkpoint_path": null,
   "results_path": "./results",
   "load_checkpoint_path": null,
