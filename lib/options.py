@@ -9,11 +9,11 @@ class BaseOptions():
     def initialize(self, parser):
         # Datasets related
         g_data = parser.add_argument_group('Data')
-        g_data.add_argument('--dataroot', type=str, default='./final_pifu_train',
+        g_data.add_argument('--dataroot', type=str, default='/home/ayushagarwal/PIFu/final_pifu_train',
                             help='path to images (data folder)')
 
         g_data.add_argument('--loadSize', type=int, default=512, help='load size of input image')
-        g_data.add_argument('--temporalSize', type=int, default=1, help='neighborhood size of input image')
+        g_data.add_argument('--temporalSize', type=int, default=3, help='neighborhood size of input image')
 
         # Experiment related
         g_exp = parser.add_argument_group('Experiment')
@@ -79,7 +79,7 @@ class BaseOptions():
         g_model.add_argument('--hourglass_dim', type=int, default='256', help='256 | 512')
 
         # Classification General
-        g_model.add_argument('--mlp_dim', nargs='+', default=[257, 1024, 512, 256, 128, 1], type=int,
+        g_model.add_argument('--mlp_dim', nargs='+', default=[769, 1024, 512, 256, 128, 1], type=int,
                              help='# of dimensions of mlp')
         g_model.add_argument('--mlp_dim_color', nargs='+', default=[513, 1024, 512, 256, 128, 3],
                              type=int, help='# of dimensions of color mlp')

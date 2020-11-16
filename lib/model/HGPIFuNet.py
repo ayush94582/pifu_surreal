@@ -95,6 +95,7 @@ class HGPIFuNet(BasePIFuNet):
 
         for im_feat in self.im_feat_list:
             # [B, Feat_i + z, N]
+            im_feat = im_feat.reshape((-1, self.opt.temporalSize, 256, 128, 128)).reshape((-1, self.opt.temporalSize * 256, 128, 128))
             point_local_feat_list = [self.index(im_feat, xy), z_feat]
 
             if self.opt.skip_hourglass:

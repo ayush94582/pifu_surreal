@@ -36,9 +36,9 @@ def train(opt):
 
     # create data loader
     train_data_loader = DataLoader(train_dataset,
-                                   batch_size=4, shuffle=True,
+                                   batch_size=2, shuffle=True,
                                    collate_fn=ignore_exceptions_collate,
-                                   num_workers=4)
+                                   num_workers=0)
 
     print('train data size: ', len(train_data_loader))
 
@@ -46,7 +46,7 @@ def train(opt):
     test_data_loader = DataLoader(test_dataset,
                                   batch_size=1, shuffle=False,
                                   collate_fn=ignore_exceptions_collate,
-                                  num_workers=1)
+                                  num_workers=0)
     print('test data size: ', len(test_data_loader))
 
     # create net
