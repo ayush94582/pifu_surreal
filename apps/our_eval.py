@@ -18,6 +18,8 @@ from lib.train_util import *
 from lib.colab_util import *
 from lib.data import *
 from lib.model import *
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 from PIL import Image
 import torchvision.transforms as transforms
@@ -105,9 +107,11 @@ class Evaluator:
             self.netG.eval()
             if self.netC:
                 self.netC.eval()
-            save_path = '%s/%s/result_%s.obj' % (opt.results_path, opt.name, data['name'])
-            video_path = '%s/%s/result_%s.mp4' % (opt.results_path, opt.name, data['name'])
+            save_path = '%s/%s/NOV15_1_images_2/result_%s.obj' % (opt.results_path, opt.name, data['name'])
+            video_path = '%s/%s/NOV15_1_images_2/result_%s.mp4' % (opt.results_path, opt.name, data['name'])
             print("Calling gen mesh")
+            print(save_path)
+            print(video_path)
             gen_mesh(opt, self.netG, self.cuda, data, save_path, use_octree=use_octree)
             renderer = set_renderer()
             generate_video_from_obj(save_path, video_path, renderer)
@@ -116,8 +120,17 @@ class Evaluator:
 
 if __name__ == '__main__':
     evaluator = Evaluator(opt)
-
     test_dataset = TrainDataset(opt, phase='test')
-
-    test_data = random.choice(test_dataset)
-    evaluator.eval(test_data,True)
+    test_data = next(iter(test_dataset))
+    #print("Adding scatter")
+    #fig = plt.figure()
+    #ax = fig.add_subplot(111, projection='3d')
+    #i,o = test_data['inside'], test_data['outside'][:40]
+    #ax.scatter(o[:,0],o[:,1],o[:,2], c='red',label="outside")
+    #ax.scatter(i[:,0],i[:,1],i[:,2], c='green',label="inside")
+    #plt.axis('off')
+    #plt.show()    
+    for _ in range(5):
+        test_dataset = TrainDataset(opt, phase='test')
+        test_data = random.choice(test_dataset)
+        evaluator.eval(test_data,True)

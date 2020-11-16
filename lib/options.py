@@ -51,7 +51,7 @@ class BaseOptions():
 
         # Testing related
         g_test = parser.add_argument_group('Testing')
-        g_test.add_argument('--resolution', type=int, default=256, help='# of grid in mesh reconstruction')
+        g_test.add_argument('--resolution', type=int, default=512, help='# of grid in mesh reconstruction')
         g_test.add_argument('--test_folder_path', type=str, default='./final_pifu_train/', help='the folder of test image')
 
         # Sampling related

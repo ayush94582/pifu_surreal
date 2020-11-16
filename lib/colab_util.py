@@ -31,6 +31,8 @@ from pytorch3d.renderer import (
     TexturesVertex
 )
 
+from PIL import Image
+
 def set_renderer():
     # Setup
     device = torch.device("cuda:0")
@@ -90,24 +92,32 @@ def generate_video_from_obj(obj_path, video_path, renderer):
     #mesh = load_objs_as_meshes([obj_path], device=device)
     mesh = trimesh.load(obj_path)
     mesh.vertices -= mesh.center_mass
-
+    verts = torch.FloatTensor(mesh.vertices).unsqueeze(0).cuda()
+    faces = torch.FloatTensor(mesh.faces).unsqueeze(0).cuda()
+    print(verts.shape)
     # Set mesh
-    mesh_wo_tex = Meshes(torch.FloatTensor(mesh.vertices), torch.FloatTensor(mesh.faces), wo_textures)
+    mesh_wo_tex = Meshes(verts,faces, wo_textures)
 
     # create VideoWriter
     fourcc = cv2. VideoWriter_fourcc(*'MP4V')
-    out = cv2.VideoWriter(video_path, fourcc, 20.0, (512,512))
-
-    for i in tqdm(range(90)):
-        R, T = look_at_view_transform(vers[0][1].mean(), 0, i*4, device=device)
+    #out = cv2.VideoWriter(video_path, fourcc, 20.0, (512,512))
+    image_path = video_path[:-4]
+    
+    for i in tqdm(range(0,360,30)):
+        R, T = look_at_view_transform(1.8, 0, i, device=device)
         images_wo_tex = renderer(mesh_wo_tex, R=R, T=T)
         images_wo_tex = np.clip(images_wo_tex[0, ..., :3].cpu().numpy(), 0.0, 1.0)[:, :, ::-1] * 255
         #image = np.concatenate([images_w_tex, images_wo_tex], axis=1)
-        image = images_wo_tex
-        out.write(image.astype('uint8'))
-    out.release()
+        image = Image.fromarray(np.uint8(images_wo_tex))
+        image.save(image_path + str(i)+'.png')
+        #out.write(image.astype('uint8'))
+    #out.release()
 
 def video(path):
     mp4 = open(path,'rb').read()
     data_url = "data:video/mp4;base64," + b64encode(mp4).decode()
     return HTML('<video width=500 controls loop> <source src="%s" type="video/mp4"></video>' % data_url)
+
+if __name__ == "__main__":
+    renderer = set_renderer()
+    generate_video_from_obj('results/run_8/result_ung_90_28.obj','results/test_VIDEO.mp4',renderer)

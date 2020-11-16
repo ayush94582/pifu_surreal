@@ -11,8 +11,10 @@ from PIL.ImageFilter import GaussianBlur
 import trimesh
 import logging
 
+
+
 log = logging.getLogger('trimesh')
-log.setLevel(40)
+#log.setLevel(40)
 
 def load_trimesh(root_dir):
     folders = os.listdir(root_dir)
@@ -279,7 +281,7 @@ class TrainDataset(Dataset):
                         :self.num_sample_inout // 2] if nin > self.num_sample_inout // 2 else inside_points
         outside_points = outside_points[
                          :self.num_sample_inout // 2] if nin > self.num_sample_inout // 2 else outside_points[
-                                                                                               :(self.num_sample_inout - nin)]
+                                                                                               :(self.num_sample_inout - nin)]                                                                               
 
         samples = np.concatenate([inside_points, outside_points], 0).T
         labels = np.concatenate([np.ones((1, inside_points.shape[0])), np.zeros((1, outside_points.shape[0]))], 1)
@@ -295,7 +297,7 @@ class TrainDataset(Dataset):
 
         return {
             'samples': samples,
-            'labels': labels
+            'labels': labels,
         }
 
 
